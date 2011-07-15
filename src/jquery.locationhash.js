@@ -54,11 +54,11 @@ $.locationHashParameter = function(sKey,sValue,option){
 	},option);
 
 	//sValueが指定されていない場合は処理せず終了
-	if(typeof sValue === "undefined" || sValue === ""){
+	if(typeof sValue === "undefined"){
 		return false;
 	}
 	//sKeyが指定されていない場合は処理せず終了
-	if(typeof sKey === "undefined" || sKey === ""){
+	if(typeof sKey === "undefined"){
 		return false;
 	}
 
@@ -116,7 +116,11 @@ $.locationHashParameter = function(sKey,sValue,option){
 				}
 			}else{
 				//強制更新モードの場合は値が定義されている＝上書き
-				aValue = [sValue];
+				if(sValue === ""){
+					aValue = [];
+				}else{
+					aValue = [sValue];
+				}
 			}
 
 			// 更新したValue値をセットする
@@ -133,7 +137,10 @@ $.locationHashParameter = function(sKey,sValue,option){
 		//判定結果：該当するキーが無い
 		// キーと値の追加を行う
 		//		aLocationHash.splice(iTargetKeyNum,1);
-		aLocationHash.push(sKey+$.locationHash.str_separaterKeyValue+sValue.toString());
+		//値が空文字の場合は処理しない
+		if(sValue !== ""){
+			aLocationHash.push(sKey+$.locationHash.str_separaterKeyValue+sValue.toString());
+		}
 	}
 
 	aLocationHash.sort();
