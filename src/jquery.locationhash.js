@@ -4,7 +4,8 @@
  * @author Ryosuke Sawada<ryosuke.sawada@gmail.com>
  * @require jQuery
  * @licence MIT Licence
- */
+*/
+
 
 /**
  * See (http://jquery.com/).
@@ -12,7 +13,7 @@
  * @class
  * See the jQuery Library  (http://jquery.com/) for full details.  This just
  * documents the function and classes that are added to jQuery by this plug-in.
- */
+*/
 
 /**
  * See (http://jquery.com/)
@@ -20,7 +21,7 @@
  * @class
  * See the jQuery Library  (http://jquery.com/) for full details.  This just
  * documents the function and classes that are added to jQuery by this plug-in.
- */
+*/
 
 /**
  *
@@ -29,7 +30,7 @@
  * @param {Object} oSetting 設定オブジェクト
  **/
 $.locationHash = {
-	 'str_separaterKeyKey':    '&'
+	'str_separaterKeyKey':    '&'
 	,'str_separaterKeyValue':  '='
 	,'str_separaterValueValue':  '|'
 	,'str_locationhashBefore':  "#!"
@@ -43,9 +44,14 @@ $.locationHash = {
  * (Value値も設定していたら、該当key&valueが有る場合にのみ削除を行う)
  *
  * @param {String} sKey   キー
- * @paran {String} sValue 値(null時は登録なし)
+ * @param {String} sValue 値(null時は登録なし)
  **/
-$.locationHashParameter = function(sKey,sValue){
+$.locationHashParameter = function(sKey,sValue,option){
+
+	//設定オブジェクト
+	option = $.extend(true,{},{
+		"forceUpdate":false	//Value値が違っていても値を上書きする
+	},option);
 
 	//sValueが指定されていない場合は処理せず終了
 	if(typeof sValue === "undefined" || sValue === ""){
@@ -87,23 +93,30 @@ $.locationHashParameter = function(sKey,sValue){
 			var aValue = sTmpValue.split($.locationHash.str_separaterValueValue);
 			var iTargetValueNum = -1;
 
-			for(var i in aValue){
+			//for(var i in aValue){
+			for(var i=0,len=aValue.length;i<len;i++){
 				if(aValue[i].toString().indexOf(sValue) > -1){
 					iTargetValueNum = i;
 				}
 			}
 
-			if(iTargetValueNum > -1){
-				//既にValue値が存在する＝値の削除
-				//　値が複数ある場合はValue配列から該当値を削除、単数の場合は配列を初期化
-				if(aValue.length === 1){
-					aValue = [];
+			if(option.forceUpdate === false){
+
+				if(iTargetValueNum > -1){
+					//既にValue値が存在する＝値の削除
+					//　値が複数ある場合はValue配列から該当値を削除、単数の場合は配列を初期化
+					if(aValue.length === 1){
+						aValue = [];
+					}else{
+						aValue.splice(iTargetValueNum,1);
+					}
 				}else{
-					aValue.splice(iTargetValueNum,1);
+					//Value値が存在しない＝同一KeyのValue値追加
+					aValue.push(sValue.toString());
 				}
 			}else{
-				//Value値が存在しない＝同一KeyのValue値追加
-				aValue.push(sValue.toString());
+				//強制更新モードの場合は値が定義されている＝上書き
+				aValue = [sValue];
 			}
 
 			// 更新したValue値をセットする
@@ -117,8 +130,9 @@ $.locationHashParameter = function(sKey,sValue){
 		})();
 
 	}else{
-		// 判定結果：該当するキーが無い
+		//判定結果：該当するキーが無い
 		// キーと値の追加を行う
+		//		aLocationHash.splice(iTargetKeyNum,1);
 		aLocationHash.push(sKey+$.locationHash.str_separaterKeyValue+sValue.toString());
 	}
 
@@ -126,7 +140,6 @@ $.locationHashParameter = function(sKey,sValue){
 
 	// location.hashに戻す
 	location.hash = $.locationHash.str_locationhashBefore+aLocationHash.join($.locationHash.str_separaterKeyKey);
-
 }
 
 /**
@@ -153,6 +166,7 @@ $.fn.getLocationHash = function(oOption){
 	var aHash = [];
 
 	// 1回目は強制的にループ処理をし、マージパラメーター処理が1個以上定義してあれば複数回ループ処理を行う
+	//for(var j = -1,leng = oOption.mergeParam.length; j < leng; j++){
 	var oTmpMergeParam = {};
 	if(oOption.mergeParam.length > 0){
 		for(var j = 0, leng = oOption.mergeParam.length; j < leng; j++){
@@ -184,6 +198,7 @@ $.fn.getLocationHash = function(oOption){
 			}
 		}
 
+		//aHash.push(aRequest[i].name+$.locationHash.str_separaterKeyValue+aRequest[i].value);
 		if(typeof oRequest[aRequest[i].name] === "undefined"){
 			oRequest[aRequest[i].name] = [];
 		}
@@ -201,6 +216,9 @@ $.fn.getLocationHash = function(oOption){
 
 	// 値を整理しながら文字列を生成
 	for(name in oRequest){
+		for(var i = 0,len = oRequest[name].length; i < len; i++){
+			oRequest[name][i] = encodeURI(oRequest[name][i]);
+		}
 		aHash.push(name+$.locationHash.str_separaterKeyValue+oRequest[name].join($.locationHash.str_separaterValueValue));
 	}
 
@@ -209,20 +227,15 @@ $.fn.getLocationHash = function(oOption){
 
 /**
  * locationhashからパラメーターオブジェクトを取得する
- *
  * @param {Object} oSetting 設定オブジェクト
  * @return {Array}          パラメーターオブジェクト(array->object)
  **/
-$.getParameterFromLocationHash = function(oSetting){
+$.getParameterFromLocationHash = function(){
 
 	// 値の定義
 	var aReturn = new Array();
 	var oReturn = {};
-	var iSliceLength = 1;
-	if(location.hash.indexOf("#!") > -1){
-		iSliceLength = 2;
-	}
-	var aHashParam = location.hash.slice(iSliceLength).split($.locationHash.str_separaterKeyKey);
+	var aHashParam = location.hash.slice(2).split($.locationHash.str_separaterKeyKey);
 
 	for(i = 0,len = aHashParam.length; i < len; i++){
 		if(aHashParam[i] === ""){
@@ -232,6 +245,7 @@ $.getParameterFromLocationHash = function(oSetting){
 		if(aHashSplitParam[1].indexOf($.locationHash.str_separaterValueValue) > -1){
 			aHashSplitParam[1] = aHashSplitParam[1].split($.locationHash.str_separaterValueValue);
 		}
+		//aReturn.push({key: aHashSplitParam[0], value: aHashSplitParam[1]});
 		oReturn[aHashSplitParam[0]] = aHashSplitParam[1];
 	}
 	return oReturn;
