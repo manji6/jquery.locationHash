@@ -48,21 +48,23 @@ $.locationHash = {
  **/
 $.locationHashParameter = function(sKey,sValue,option){
 
+	var oHash = {};
+
+	// 書き換えパラメーターをオブジェクトで渡された時は変数の入れ替えをする
+	if($.type(sKey) !== "object"){
+	
+		oHash[sKey] = sValue;
+
+	}else{
+		oHash = sKey;
+		option = sValue;
+	}
+
 	//設定オブジェクト
 	option = $.extend(true,{},{
 		"forceUpdate":false	//Value値が違っていても値を上書きする
 	},option);
 
-	//sValueが指定されていない場合は処理せず終了
-	if(typeof sValue === "undefined"){
-		return false;
-	}
-	//sKeyが指定されていない場合は処理せず終了
-	if(typeof sKey === "undefined"){
-		return false;
-	}
-
-	var iTargetKeyNum = -1;
 
 	// 現在のlocation.hash値配列を取得
 	// (不要な文字列を削除して、keyとkeyの区切り記号で分割したものを用意)
@@ -76,70 +78,91 @@ $.locationHashParameter = function(sKey,sValue,option){
 		}
 	})();
 
-	// 該当keyの状況を取得
-	for(var i in aLocationHash){
-		if(aLocationHash[i].toString().indexOf(sKey) > -1){
-			iTargetKeyNum = i;
+
+	for(var keyname in oHash){
+		
+		var sHashKey = keyname;
+		var sHashValue = oHash[keyname];
+
+
+		//sHashValueが指定されていない場合は処理せず終了
+		if(typeof sHashValue === "undefined"){
+			return false;
 		}
-	}
+		//sHashKeyが指定されていない場合は処理せず終了
+		if(typeof sHashKey === "undefined"){
+			return false;
+		}
 
-	// location.hash内に該当のkey値が有りValue値が同じ場合は削除、無い場合は値を追加
-	if(iTargetKeyNum > -1){
-		//判定結果：該当するキーがする
-		//　既にvalueはセットしてあるかしてないかを判定
-		aLocationHash = (function(){
-			var sKeyName = aLocationHash[iTargetKeyNum].substring(0,aLocationHash[iTargetKeyNum].indexOf($.locationHash.str_separaterKeyValue));
-			var sTmpValue = aLocationHash[iTargetKeyNum].substring(aLocationHash[iTargetKeyNum].indexOf($.locationHash.str_separaterKeyValue)+1);
-			var aValue = sTmpValue.split($.locationHash.str_separaterValueValue);
-			var iTargetValueNum = -1;
+		var iTargetKeyNum = -1;
 
-			//for(var i in aValue){
-			for(var i=0,len=aValue.length;i<len;i++){
-				if(aValue[i].toString().indexOf(sValue) > -1){
-					iTargetValueNum = i;
-				}
+
+
+		// 該当keyの状況を取得
+		for(var i in aLocationHash){
+			if(aLocationHash[i].toString().indexOf(sHashKey) > -1){
+				iTargetKeyNum = i;
 			}
+		}
 
-			if(option.forceUpdate === false){
+		// location.hash内に該当のkey値が有りValue値が同じ場合は削除、無い場合は値を追加
+		if(iTargetKeyNum > -1){
+			//判定結果：該当するキーがする
+			//　既にvalueはセットしてあるかしてないかを判定
+			aLocationHash = (function(){
+				var sHashKeyName = aLocationHash[iTargetKeyNum].substring(0,aLocationHash[iTargetKeyNum].indexOf($.locationHash.str_separaterKeyValue));
+				var sTmpValue = aLocationHash[iTargetKeyNum].substring(aLocationHash[iTargetKeyNum].indexOf($.locationHash.str_separaterKeyValue)+1);
+				var aValue = sTmpValue.split($.locationHash.str_separaterValueValue);
+				var iTargetValueNum = -1;
 
-				if(iTargetValueNum > -1){
-					//既にValue値が存在する＝値の削除
-					//　値が複数ある場合はValue配列から該当値を削除、単数の場合は配列を初期化
-					if(aValue.length === 1){
-						aValue = [];
+				//for(var i in aValue){
+				for(var i=0,len=aValue.length;i<len;i++){
+					if(aValue[i].toString().indexOf(sHashValue) > -1){
+						iTargetValueNum = i;
+					}
+				}
+
+				if(option.forceUpdate === false){
+
+					if(iTargetValueNum > -1){
+						//既にValue値が存在する＝値の削除
+						//　値が複数ある場合はValue配列から該当値を削除、単数の場合は配列を初期化
+						if(aValue.length === 1){
+							aValue = [];
+						}else{
+							aValue.splice(iTargetValueNum,1);
+						}
 					}else{
-						aValue.splice(iTargetValueNum,1);
+						//Value値が存在しない＝同一KeyのValue値追加
+						aValue.push(sHashValue.toString());
 					}
 				}else{
-					//Value値が存在しない＝同一KeyのValue値追加
-					aValue.push(sValue.toString());
+					//強制更新モードの場合は値が定義されている＝上書き
+					if(sHashValue === ""){
+						aValue = [];
+					}else{
+						aValue = [sHashValue];
+					}
 				}
-			}else{
-				//強制更新モードの場合は値が定義されている＝上書き
-				if(sValue === ""){
-					aValue = [];
+
+				// 更新したValue値をセットする
+				if(aValue.length === 0){
+					aLocationHash.splice(iTargetKeyNum,1);
 				}else{
-					aValue = [sValue];
+					aValue.sort();
+					aLocationHash[iTargetKeyNum] = sHashKeyName+$.locationHash.str_separaterKeyValue+aValue.join($.locationHash.str_separaterValueValue);
 				}
-			}
+				return aLocationHash;
+			})();
 
-			// 更新したValue値をセットする
-			if(aValue.length === 0){
-				aLocationHash.splice(iTargetKeyNum,1);
-			}else{
-				aValue.sort();
-				aLocationHash[iTargetKeyNum] = sKeyName+$.locationHash.str_separaterKeyValue+aValue.join($.locationHash.str_separaterValueValue);
+		}else{
+			//判定結果：該当するキーが無い
+			// キーと値の追加を行う
+			//		aLocationHash.splice(iTargetKeyNum,1);
+			//値が空文字の場合は処理しない
+			if(sHashValue !== ""){
+				aLocationHash.push(sHashKey+$.locationHash.str_separaterKeyValue+sHashValue.toString());
 			}
-			return aLocationHash;
-		})();
-
-	}else{
-		//判定結果：該当するキーが無い
-		// キーと値の追加を行う
-		//		aLocationHash.splice(iTargetKeyNum,1);
-		//値が空文字の場合は処理しない
-		if(sValue !== ""){
-			aLocationHash.push(sKey+$.locationHash.str_separaterKeyValue+sValue.toString());
 		}
 	}
 

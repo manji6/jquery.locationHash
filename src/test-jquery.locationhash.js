@@ -8,7 +8,7 @@
 
 module("$.locationHashParameter")
 
-/* test1: location.hashが無い場合に値を追加する */
+
 test("値の追加処理",function(){
 
 	// location.hashの値をクリアする
@@ -24,7 +24,6 @@ test("値の追加処理",function(){
 });
 
 
-/* test2: パラメータの削除処理 */
 test("値の削除処理",function(){
 
 	// location.hashの値を定義する
@@ -39,8 +38,6 @@ test("値の削除処理",function(){
 	same(location.hash,"#!","key自体の削除");
 
 });
-
-/* test3: 複数パラメーターの追加 */
 test("複数キー値の追加処理",function(){
 
 	// location.hash の値をクリアする
@@ -63,7 +60,6 @@ test("複数キー値の追加処理",function(){
 });
 
 
-/* test4: 複数パラメーターの削除 */
 test("複数キー値が設定してある状態での削除処理",function(){
 
 	location.hash = "#!h-big_bath=1&h-parking=1&h-spa=1";
@@ -82,7 +78,6 @@ test("複数キー値が設定してある状態での削除処理",function(){
 
 });
 
-/* test5: null値の追加 */
 test("エラー処理",function(){
 
 	// 一旦パラメーターを削除
@@ -127,7 +122,6 @@ test("エラー処理",function(){
 
 module("$.locationHash");
 
-/* 区切り文字列を書き換えて追加と削除を行う */
 test("区切り文字列などの定義値変更処理",function(){
 
 	// 区切り値を変更する
@@ -230,29 +224,47 @@ test("オプションパラメーター",function(){
 	// location.hashの値をクリアする
 	location.hash = "#!";
 
-	// key => "key" value => "2" を追加処理
 	$.locationHashParameter('key',2);
 	same(location.hash,"#!key=2","key=2を追加");
 
-	// key => "key" value => "2" を追加処理
 	$.locationHashParameter('key',3,{"forceUpdate": true});
 	same(location.hash,"#!key=3","forceUpdateモードなので値は書き換えられて3になる");
 
-	// key => "key" value => "2" を追加処理
 	$.locationHashParameter('key',"",{"forceUpdate": true});
 	same(location.hash,"#!","値が消える");
 
-	// key => "key" value => "2" を追加処理
 	$.locationHashParameter('key',3,{"forceUpdate": true});
 	same(location.hash,"#!key=3","forceUpdateモードなので値は書き換えられて3になる");
 
-	// key => "key" value => "2" を追加処理
 	$.locationHashParameter('key',1,{"forceUpdate": false});
 	same(location.hash,"#!key=1|3","値の追加");
 
-	// key => "key" value => "2" を追加処理
 	$.locationHashParameter('key',"",{"forceUpdate": true});
 	same(location.hash,"#!","値が消えるべき");
 
+	$.locationHashParameter('key',2);
+	same(location.hash,"#!key=2","key=2を追加");
 
+	$.locationHashParameter('hoge',1);
+	same(location.hash,"#!hoge=1&key=2","hoge=2を追加");
+
+	$.locationHashParameter('hoge',"");
+	same(location.hash,"#!key=2","hoge=2を削除");
+
+});
+
+
+test("値の複数処理",function(){
+
+	location.hash = "#!";
+
+	$.locationHashParameter({"key":2,"hoge":"fuga"});
+	same(location.hash,"#!hoge=fuga&key=2","オブジェクト型で値をセット");
+
+
+	$.locationHashParameter({"key":"3","hoge":"mogmog"},{"forceUpdate":true});
+	same(location.hash,"#!hoge=mogmog&key=3","forceupdate処理に対応");
+	
+	$.locationHashParameter({"key":"","hoge":""},{"forceUpdate":true});
+	same(location.hash,"#!","値の削除処理");
 });
