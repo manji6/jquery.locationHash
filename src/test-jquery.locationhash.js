@@ -157,6 +157,11 @@ test("区切り文字列などの定義値変更処理",function(){
 	$.locationHashParameter('key',2);
 	same(location.hash,"#key2=ok&key=1","key=2を削除");
 
+	// 値の名称完全一致
+	$.locationHashParameter("keykey","fuga");
+	same(location.hash,"#key2=ok&key=1&keykey=fuga","keykeyを追加");
+
+
 });
 
 //最後に余計なハッシュフラグメントを取っておく
@@ -267,4 +272,20 @@ test("値の複数処理",function(){
 	
 	$.locationHashParameter({"key":"","hoge":""},{"forceUpdate":true});
 	same(location.hash,"#!","値の削除処理");
+	
+	$.locationHashParameter({"key":"3","keykey":"mogmog"},{"forceUpdate":true});
+	same(location.hash,"#!key=3&keykey=mogmog","forceupdate処理に対応");
+
+
+
+
+});
+
+test("おかしいパターン",function(){
+
+	location.hash = "#!kwd=aaa&kwd_type=1";
+
+	$.locationHashParameter({kwd: "bbb",kwd_type: "3"}, {forceUpdate:true});
+	same(location.hash,"#!kwd=bbb&kwd_type=3","forceupdate処理に対応");
+
 });

@@ -79,6 +79,7 @@ $.locationHashParameter = function(sKey,sValue,option){
 	})();
 
 
+	//処理するオブジェクトをループして処理
 	for(var keyname in oHash){
 		
 		var sHashKey = keyname;
@@ -100,7 +101,8 @@ $.locationHashParameter = function(sKey,sValue,option){
 
 		// 該当keyの状況を取得
 		for(var i in aLocationHash){
-			if(aLocationHash[i].toString().indexOf(sHashKey) > -1){
+			var r_regex = new RegExp("^"+sHashKey+"=");
+			if(aLocationHash[i].toString().match(r_regex) !== null){
 				iTargetKeyNum = i;
 			}
 		}
@@ -265,7 +267,8 @@ $.getParameterFromLocationHash = function(){
 	// 値の定義
 	var aReturn = new Array();
 	var oReturn = {};
-	var aHashParam = location.hash.slice(2).split($.locationHash.str_separaterKeyKey);
+	var aHashParam = location.hash.slice($.locationHash.str_locationhashBefore.length).split($.locationHash.str_separaterKeyKey);
+
 
 	for(i = 0,len = aHashParam.length; i < len; i++){
 		if(aHashParam[i] === ""){
