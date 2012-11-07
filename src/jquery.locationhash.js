@@ -262,15 +262,12 @@ $.fn.getLocationHash = function(oOption){
  * @param {Object} oSetting 設定オブジェクト
  * @return {Array}          パラメーターオブジェクト(array->object)
  **/
-$.getParameterFromLocationHash = function(oSetting){
-
-	var oSetting = oSetting || {preprocess: function(){return location.hash}};
-	var sLocationHash = oSetting.preprocess();
+$.getParameterFromLocationHash = function(){
 
 	// 値の定義
 	var aReturn = new Array();
 	var oReturn = {};
-	var aHashParam = sLocationHash.slice($.locationHash.str_locationhashBefore.length).split($.locationHash.str_separaterKeyKey);
+	var aHashParam = location.hash.slice($.locationHash.str_locationhashBefore.length).split($.locationHash.str_separaterKeyKey);
 
 
 	for(i = 0,len = aHashParam.length; i < len; i++){

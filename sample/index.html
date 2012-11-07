@@ -18,22 +18,14 @@
 			<p><input type="TEXT" name="sample1_text" class="input_param" /> <a href="javascript:void(0);" class="running">[実行]</a></p>
 			<p>実行コード: $.getParameterFromLocationHash()</p>
 			<p>変換結果: <span class="result">ここに文字列展開</span>(console.logでobject出力もしています)</p>
-			<p>実行コード: $("form").getParameterFromLocationHash({preprocess:function(){location.hash.slice(0,location.hash.indexOf("?"))}})
-			</p>
-			<p>変換結果: <span class="result2">ここに文字列展開</span></p>
 		</div>
 		<div id="sample2">
 			<h2>2.特定要素配下にある要素のinput要素を取得してlocation.hash文字列を生成する</h2>
-			<p>
-				<textarea name="sample2_textarea" id="sample2_textarea" style="width:600px;height:200px;"></textarea>
-				<a href="javascript:void(0);" class="running">[実行]</a>
-			</p>
+			<p><textarea name="sample2_textarea" id="sample2_textarea" style="width:600px;height:200px;"></textarea> <a href="javascript:void(0);" class="running">[実行]</a></p>
 			<p>対象フォーム</p>
 			<form name="sample2_form1" id="sample2_form1"  style="background-color: #f0f0f0;"><input type="text" name ="text1" id="text1" value="hogehoge"/></form>
 			<p>実行コード: $("form").getLocationHash()</p>
 			<p>変換結果: <span class="result">ここに文字列展開</span></p>
-			
-			
 		</div>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 		<script type="text/javascript" src="../src/jquery.locationHash.js"></script>
