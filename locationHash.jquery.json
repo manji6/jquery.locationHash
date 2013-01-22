@@ -1,0 +1,20 @@
+{
+	"name": "locationHash",
+	"title": "jQuery.locationHash",
+	"description": "Library to be able to treat like a parameter to get location.hash.",
+	"keywords": ["location.hash","ajax"],
+	"version": "1.0.0",
+	"author": {
+		"name": "manji6",
+		"url": "http://manjiro.net/"
+	},
+	"dependencies": {
+		"jquery": ">=1.4.1"
+	},
+	"licenses": [{
+		"type": "MIT",
+		"url": "http://opensource.org/licenses/mit-license.php"
+	}],
+	"docs": "http://manjiro.net/jquery-plugin/jquery-locationhash",
+	"files": "src/jquery.locationhash.js"
+}
